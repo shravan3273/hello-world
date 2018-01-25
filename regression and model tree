@@ -1,0 +1,61 @@
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
+getwd()
+wine=read.csv("whitewine.csv")
+#lets see structure of our data
+str(wine)
+
+
+#here there is no need of type of wine.so, we can remove from our data
+wine<-wine[-13]
+
+#to check distribution of wine quality 
+hist(wine$quality)
+
+summary(wine)
+#our last step is to divide into train and test
+wine_train<-wine[1:5100,]
+wine_test<-wine[5101:6497,]
+
+#training a modeol on data
+library(rpart)
+
+# refer to the documentation for control parameters using ?rpart.control command
+model<-rpart(quality~.,data=wine_train)
+#lets take basic information
+model
+
+#to know more detailed summary of tree's fit
+summary(model)
+#visualising using plot
+library(rpart.plot)
+rpart.plot(model,digits = 3)
+
+
+#for many more other visualizations
+rpart.plot(model,digits = 4,fallen.leaves = TRUE,type = 3,extra = 101)
+predict<-predict(model,wine_test)
+summary(predict)
+summary(wine_test$quality)
+
+
+#will use correlation to compare how well predicted values corresponds to true value
+cor(predict,wine_test$quality)
+
+
+#measuring performance using MAE
+#first creating a MAE function
+MAE<-function(actual,predicted){
+  mean(abs(actual-predicted))
+}
+MAE(predict,wine_test$quality)
+mean(wine_train$quality)
+MAE(5.79,wine_test$quality)
+
+
+#improing model performance using model tree
+library(RWeka)
+improve<-M5P(quality~.,data=wine_train)
+improve_predict<-predict(improve,wine_test)
+summary(improve_predict)
+cor(improve_predict,wine_test$quality)
+MAE(wine_test$quality,improve_predict)
