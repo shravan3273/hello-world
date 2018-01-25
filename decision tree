@@ -1,0 +1,51 @@
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
+getwd()
+credit=read.csv("tommy.csv",stringsAsFactors = TRUE)
+str(credit)
+table(credit$checking_balance)
+table(credit$savings_balance)
+summary(credit$months_loan_duration)
+summary(credit$amount)
+convert_change<-function(x){
+  credit$default<-ifelse(credit$default>1,"yes","no")
+}
+table(credit$default)
+set.seed(123)
+sampling<-sample(1000,900)
+str(sampling)
+
+credit_train<-credit[sampling,]
+credit_test<-credit[-sampling,]
+prop.table(table(credit_train$default))
+prop.table(table(credit_test$default))
+library(C50)
+?C5.0Control
+
+credit_train$default<-as.factor(credit_train$default)
+
+model<-C5.0(credit_train[-17],credit_train$default)
+model
+summary(model)
+model_test<-predict(model,credit_test)
+library(gmodels)
+CrossTable(credit_test$default,model_test,dnn=c("actual default","predicted default"))
+boost10<-C5.0(credit_train[-17],credit_train$default,trials = 10)
+boost10
+
+summary(boost10)
+boost_pred10<-predict(boost10,credit_test)
+boost_pred10
+summary(boost_pred10)
+CrossTable(credit_test$default,boost_pred10,dnn = c("actual default","predicted default"))
+
+
+
+matrix<-list(c("no","yes"),c("no","yes"))
+names(matrix)<-c("predicted","actual")
+error_cost<-matrix(c(0,1,4,0),nrow=2,dimnames=matrix)
+error_cost
+
+
+
+credit_cost<-C5.0(credit_train[-17],credit_train$default,costs=error_cost)
+credit_cost_pred<-predict(credit_cost,credit_test)
