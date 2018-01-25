@@ -1,0 +1,59 @@
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
+getwd()
+raw=read.csv("spamraw.csv",header=TRUE)
+str(raw)
+raw$text=as.character(raw$text)
+str(raw$text)
+str(raw$type)
+table(raw$type)
+prop.table(table(raw$type))*100
+library(tm)
+raw_corpus<-VCorpus(VectorSource(raw$text))
+print(raw_corpus)
+
+
+#to get summary of specific messages
+inspect(raw_corpus[1:4])
+
+
+#to view actual message use this
+as.character(raw_corpus[[4]])
+lapply(raw_corpus[1:4],as.character)
+raw_corpus_clean<-tm_map(raw_corpus,content_transformer(tolower))
+
+
+#lapply(raw_corpus_clean[3:4],as.character)
+raw_corpus_clean<-tm_map(raw_corpus_clean,removeNumbers)
+getTransformations()
+raw_corpus_clean<-tm_map(raw_corpus_clean,removeWords,stopwords(kind = "en"))
+raw_corpus_clean<-tm_map(raw_corpus_clean,removePunctuation)
+library(SnowballC)
+raw_corpus_clean<-tm_map(raw_corpus_clean,stemDocument)
+raw_corpus_clean<-tm_map(raw_corpus_clean,stripWhitespace)
+
+
+#raw_dtm<-TermDocumentMatrix(raw_corpus,control=list(
+#tolower=TRUE,removeNumbers=TRUE,stopwords=TRUE,removePunctuation=TRUE,stemming=TRUE
+#))
+
+
+#creating trainig and test data
+raw_dtm_train<-raw_dtm[1:4169,]
+raw_dtm_test<-raw_dtm[4170:5559,]
+
+raw_tarin_lables<-raw[1:4169,]$type
+raw_test_lables<-raw[4170:5559,]$type
+prop.table(table(raw_tarin_lables))
+prop.table(table(raw_test_lables))
+
+
+library(wordcloud)
+wordcloud(raw_corpus_clean,min.freq = 50,random.order = TRUE)
+spam<-subset(raw,type=="spam")
+ham<-subset(raw,type=="ham")
+wordcloud(spam$text,max.words = 50,scale = c(3,0.5))
+wordcloud(ham$text,max.words = 50,scale = c(3,0.5))
+raw_freq_words<-findFreqTerms(raw_dtm_train,5)
+str(raw_freq_words)
+raw_dtm_freq_train<-raw_dtm_train[ raw_freq_words,]
+raw_dtm_freq_test<-raw_dtm_test[raw_freq_words,]
