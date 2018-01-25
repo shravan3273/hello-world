@@ -1,0 +1,20 @@
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
+getwd()
+insurance=read.csv("insurance.csv",stringsAsFactors = TRUE)
+
+#let's remove the empty column 
+insurance<-insurance[-1]
+str(insurance)
+
+####our goal is to estimate the average medical charges from given population
+
+#let's look at the summary statistics
+summary(insurance[7])
+hist(insurance$charges)
+table(insurance[6])
+cor(insurance[c("age","bmi","children","charges")])
+pairs(insurance[c("age","bmi","children","charges")])
+library(psych)
+pairs.panels(insurance[c("age","bmi","children","charges")])
+ins_model<-lm(charges~age+children+bmi+sex+smoker+region,data=insurance)
+ins_model
