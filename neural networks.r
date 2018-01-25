@@ -1,4 +1,4 @@
-setwd("directory name")
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
 getwd()
 concrete=read.csv("concrete.csv")
 str(concrete)
