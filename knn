@@ -1,0 +1,40 @@
+setwd("C:/Users/PAVAN KUMAR/Documents/data science")
+getwd()
+data=read.csv("breastcancer.csv",header=TRUE)
+str(data)
+table(data$diagnosis)
+data<-data[-1]
+round(prop.table(table(data$diagnosis)) * 100,digit=1)
+summary(data)
+normalize<-function(x){
+  return((x-min(x))/(max(x)-min(x)))
+}
+data_n<-as.data.frame(lapply(data[2:31],normalize))
+summary(data_n)
+sum(is.na(data))
+boxplot(data_n)
+data_train<-data_n[1:469,]
+data_test<-data_n[470:569,]
+data_train_labels<-data[1:469,1]
+data_test_labels<-data[470:569,1]
+install.packages("class")
+library(class)
+data_test_predict<-knn( train = data_train, test = data_test , cl= data_train_labels , k=27)
+install.packages("gmodels")
+library(gmodels)
+CrossTable(x=data_test_labels,y=data_test_predict,prop.chisq=FALSE)
+
+rm(list=ls())
+
+
+
+#from here we used standardization in order to check for better accuracy
+
+data_z=as.data.frame(scale(data[-1]))
+summary(data_z)
+data_trainz=data_z[1:469,]
+data_testz=data_z[470:569,]
+data_train_labelsz<-data[1:469,1]
+data_test_labelsz<-data[470:569,1]
+data_test_predictz<-knn(train=data_trainz,test=data_testz,cl=data_train_labelsz,k=21)
+CrossTable(x=data_test_labelsz,y=data_test_predictz,prop.chisq=FALSE)
